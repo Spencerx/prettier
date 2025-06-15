@@ -59,16 +59,15 @@ const unstableTests = new Map(
 const unstableAstTests = new Map();
 const commentClosureTypecaseTests = new Set(
   [
-    // These tests only work for `babel`, `acorn`, and `oxc`
+    // These tests works on `babel`, `acorn`, `espree`, `oxc`, and `meriyah`
     "comments-closure-typecast",
   ].map((directory) => path.join(__dirname, "../format/js", directory)),
 );
 
-const espreeDisabledTests = commentClosureTypecaseTests;
+const espreeDisabledTests = new Set();
 const acornDisabledTests = new Set();
-const meriyahDisabledTests = new Set([
-  ...commentClosureTypecaseTests,
-  ...[
+const meriyahDisabledTests = new Set(
+  [
     // Parsing to different ASTs
     "js/decorators/member-expression.js",
     // Meriyah parse RegExp relay on runtime behavior
@@ -79,30 +78,14 @@ const meriyahDisabledTests = new Set([
     "js/babel-plugins/regexp-modifiers.js",
     "js/regex/regexp-modifiers.js",
   ].map((file) => path.join(__dirname, "../format", file)),
-]);
+);
 const babelTsDisabledTests = new Set(
   ["conformance/types/moduleDeclaration/kind-detection.ts"].map((file) =>
     path.join(__dirname, "../format/typescript", file),
   ),
 );
-const oxcDisabledTests = new Set(
-  [
-    // Missing `.decorators`
-    // https://github.com/oxc-project/oxc/issues/10921
-    "js/babel-plugins/decorators.js",
-    "js/decorators",
-    "js/decorators/class-expression",
-    "js/decorators-export",
-    "js/decorator-auto-accessors",
-    "js/ignore/class-expression-decorator.js",
-  ].map((file) => path.join(__dirname, "../format", file)),
-);
-const oxcTsDisabledTests = new Set(
-  [
-    // https://github.com/oxc-project/oxc/issues/11029
-    "typescript/decorators/abstract-method.ts",
-  ].map((file) => path.join(__dirname, "../format", file)),
-);
+const oxcDisabledTests = new Set();
+const oxcTsDisabledTests = new Set();
 const hermesDisabledTests = new Set([
   ...commentClosureTypecaseTests,
   ...[
@@ -120,6 +103,12 @@ const hermesDisabledTests = new Set([
     "js/comments/function-declaration.js",
   ].map((file) => path.join(__dirname, "../format", file)),
 ]);
+const flowDisabledTests = new Set(
+  [
+    // Parsing to different ASTs
+    "js/decorators/member-expression.js",
+  ].map((file) => path.join(__dirname, "../format", file)),
+);
 
 const isUnstable = (filename, options) => {
   const testFunction = unstableTests.get(filename);
@@ -340,6 +329,7 @@ function runFormatTest(fixtures, parsers, options) {
           (currentParser === "oxc" && oxcDisabledTests.has(filename)) ||
           (currentParser === "oxc-ts" && oxcTsDisabledTests.has(filename)) ||
           (currentParser === "hermes" && hermesDisabledTests.has(filename)) ||
+          (currentParser === "flow" && flowDisabledTests.has(filename)) ||
           (currentParser === "babel-ts" && babelTsDisabledTests.has(filename))
         ) {
           continue;
